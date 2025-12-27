@@ -24,7 +24,7 @@ def get_client():
 class AIService:
     def __init__(self):
         # Use stable Gemini model
-        self.model_id = 'gemini-1.5-flash'
+        self.model_id = 'gemini-2.0-flash'
     
     def build_system_prompt(self, session: Dict[str, Any]) -> str:
         """Build the system prompt with campaign context."""
