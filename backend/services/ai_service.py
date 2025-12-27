@@ -223,7 +223,7 @@ Write in second person. Be atmospheric and immersive."""
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     temperature=0.9,
-                    max_output_tokens=600
+                    max_output_tokens=1024
                 )
             )
             
