@@ -122,7 +122,7 @@ Respond as the Dungeon Master (2-4 paragraphs):"""
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     temperature=0.8,
-                    max_output_tokens=500
+                    max_output_tokens=1024
                 )
             )
             
