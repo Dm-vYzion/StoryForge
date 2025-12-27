@@ -115,18 +115,20 @@ Provide your narrative response directly. Be evocative and immersive. Do not bre
 ## PLAYER ACTION
 The player says: "{player_action}"
 
-Respond as the Dungeon Master (2-4 paragraphs):"""
+Respond as the Dungeon Master (2-4 paragraphs). IMPORTANT: Always end your response with a complete sentence. Never stop mid-sentence."""
             
             response = client.models.generate_content(
                 model=self.model_id,
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     temperature=0.8,
-                    max_output_tokens=1024
+                    max_output_tokens=600
                 )
             )
             
-            return response.text
+            # Ensure narrative ends at a complete sentence
+            narrative = self._ensure_complete_ending(response.text)
+            return narrative
             
         except Exception as e:
             logger.error(f"Error generating narrative: {e}")
