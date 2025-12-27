@@ -1,23 +1,32 @@
 import os
 import json
-from typing import Optional, List, Dict, Any
+from typing import Dict, Any
 import logging
 
 logger = logging.getLogger(__name__)
 
-# Lazy initialization of client
+# Lazy initialization of OpenAI client
 _client = None
 
 def get_client():
+    """Get OpenAI client configured for Emergent LLM key."""
     global _client
     if _client is None:
-        from google import genai
-        _client = genai.Client(api_key=os.environ.get('GEMINI_API_KEY'))
+        from openai import OpenAI
+        emergent_key = os.environ.get('EMERGENT_LLM_KEY')
+        if not emergent_key:
+            raise ValueError("EMERGENT_LLM_KEY not found in environment")
+        _client = OpenAI(
+            api_key=emergent_key,
+            base_url="https://api.emergent.sh/v1"
+        )
     return _client
+
 
 class AIService:
     def __init__(self):
-        self.model_id = 'gemini-2.0-flash-exp'
+        # Using GPT-4o through Emergent's universal key
+        self.model_id = 'gpt-4o'
     
     def build_system_prompt(self, session: Dict[str, Any]) -> str:
         """Build the system prompt with campaign context."""
@@ -90,36 +99,28 @@ Provide your narrative response directly. Be evocative and immersive. Do not bre
     async def generate_narrative(self, session: Dict[str, Any], player_action: str) -> str:
         """Generate AI narrative response to player action."""
         try:
-            from google.genai import types
             client = get_client()
             system_prompt = self.build_system_prompt(session)
             
             # Build conversation for context
-            history_text = ""
+            messages = [{"role": "system", "content": system_prompt}]
+            
+            # Add recent history
             for entry in session.get('narrativeHistory', [])[-6:]:
-                role = "Player" if entry.get('type') == 'player' else "DM"
-                history_text += f"\n{role}: {entry.get('content', '')}\n"
+                role = "user" if entry.get('type') == 'player' else "assistant"
+                messages.append({"role": role, "content": entry.get('content', '')})
             
-            prompt = f"""{system_prompt}
-
-## RECENT STORY
-{history_text}
-
-## PLAYER ACTION
-The player says: "{player_action}"
-
-Respond as the Dungeon Master (2-4 paragraphs):"""
+            # Add current action
+            messages.append({"role": "user", "content": player_action})
             
-            response = client.models.generate_content(
+            response = client.chat.completions.create(
                 model=self.model_id,
-                contents=prompt,
-                config=types.GenerateContentConfig(
-                    temperature=0.8,
-                    max_output_tokens=500
-                )
+                messages=messages,
+                temperature=0.8,
+                max_tokens=500
             )
             
-            return response.text
+            return response.choices[0].message.content
             
         except Exception as e:
             logger.error(f"Error generating narrative: {e}")
@@ -133,7 +134,6 @@ What do you do?"""
     async def analyze_action_impact(self, session: Dict[str, Any], action: str, narrative: str) -> Dict[str, Any]:
         """Analyze the action for quest updates, new anchors, and tension changes."""
         try:
-            from google.genai import types
             client = get_client()
             analysis_prompt = f"""Analyze this game action and narrative for a D&D campaign intelligence system.
 
@@ -147,26 +147,24 @@ KNOWN LOCATIONS: {json.dumps([l.get('name') for l in session.get('anchors', {}).
 Provide a JSON response with:
 {{
   "tension_change": <number from -10 to +15>,
-  "new_npcs": [{{\"name\": \"...\", \"description\": \"...\", \"disposition\": <-100 to 100>}}],
-  "new_locations": [{{\"name\": \"...\", \"description\": \"...\", \"atmosphere\": \"...\"}}],
-  "new_plot_threads": [{{\"name\": \"...\", \"description\": \"...\"}}],
-  "quest_progress": {{\"quest_title\": \"objective_completed_or_null\"}}
+  "new_npcs": [{{"name": "...", "description": "...", "disposition": <-100 to 100>}}],
+  "new_locations": [{{"name": "...", "description": "...", "atmosphere": "..."}}],
+  "new_plot_threads": [{{"name": "...", "description": "..."}}],
+  "quest_progress": {{"quest_title": "objective_completed_or_null"}}
 }}
 
 Only include new elements if they were clearly introduced in the narrative. Be conservative.
 Respond with ONLY the JSON, no other text."""
 
-            response = client.models.generate_content(
+            response = client.chat.completions.create(
                 model=self.model_id,
-                contents=analysis_prompt,
-                config=types.GenerateContentConfig(
-                    temperature=0.2,
-                    max_output_tokens=300
-                )
+                messages=[{"role": "user", "content": analysis_prompt}],
+                temperature=0.2,
+                max_tokens=300
             )
             
             # Parse JSON response
-            response_text = response.text.strip()
+            response_text = response.choices[0].message.content.strip()
             # Clean up potential markdown formatting
             if response_text.startswith('```'):
                 response_text = response_text.split('```')[1]
@@ -189,9 +187,16 @@ Respond with ONLY the JSON, no other text."""
     async def generate_opening_narrative(self, campaign: Dict[str, Any], character: Dict[str, Any]) -> str:
         """Generate the opening narrative for a new game session."""
         try:
-            from google.genai import types
             client = get_client()
-            prompt = f"""You are a Dungeon Master starting a new D&D 5e campaign.
+            
+            messages = [
+                {
+                    "role": "system",
+                    "content": "You are an expert Dungeon Master creating immersive opening narratives for D&D campaigns. Write in second person, be atmospheric and evocative."
+                },
+                {
+                    "role": "user",
+                    "content": f"""Create an opening scene for this campaign:
 
 CAMPAIGN: {campaign.get('title')}
 TAGLINE: {campaign.get('tagline')}
@@ -207,20 +212,18 @@ Write an evocative opening scene (3-4 paragraphs) that:
 1. Sets the mood and atmosphere
 2. Introduces the character to the setting
 3. Hints at the adventure to come
-4. Ends with a clear situation inviting player action
+4. Ends with a clear situation inviting player action"""
+                }
+            ]
 
-Write in second person. Be atmospheric and immersive."""
-
-            response = client.models.generate_content(
+            response = client.chat.completions.create(
                 model=self.model_id,
-                contents=prompt,
-                config=types.GenerateContentConfig(
-                    temperature=0.9,
-                    max_output_tokens=600
-                )
+                messages=messages,
+                temperature=0.9,
+                max_tokens=600
             )
             
-            return response.text
+            return response.choices[0].message.content
             
         except Exception as e:
             logger.error(f"Error generating opening: {e}")
@@ -232,6 +235,7 @@ The air carries a sense of anticipation as you survey your surroundings. Somethi
 Your instincts tell you that the choices you make from this moment forward will shape not just your fate, but perhaps the fate of many others.
 
 What do you do?"""
+
 
 # Singleton instance
 ai_service = AIService()
