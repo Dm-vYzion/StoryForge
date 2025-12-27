@@ -26,6 +26,39 @@ class AIService:
         # Use stable Gemini model
         self.model_id = 'gemini-2.0-flash'
     
+    def _ensure_complete_ending(self, text: str) -> str:
+        """Ensure the narrative ends at a complete sentence, not mid-sentence."""
+        if not text:
+            return text
+        
+        text = text.strip()
+        
+        # If already ends with proper punctuation, we're good
+        if text and text[-1] in '.!?"\'':
+            return text
+        
+        # Find the last sentence-ending punctuation
+        last_period = text.rfind('.')
+        last_exclaim = text.rfind('!')
+        last_question = text.rfind('?')
+        last_quote_period = text.rfind('."')
+        last_quote_exclaim = text.rfind('!"')
+        last_quote_question = text.rfind('?"')
+        
+        # Get the latest complete sentence ending
+        endings = [last_period, last_exclaim, last_question, 
+                   last_quote_period + 1 if last_quote_period > -1 else -1,
+                   last_quote_exclaim + 1 if last_quote_exclaim > -1 else -1,
+                   last_quote_question + 1 if last_quote_question > -1 else -1]
+        
+        last_complete = max(endings)
+        
+        if last_complete > 0:
+            return text[:last_complete + 1].strip()
+        
+        # If no sentence ending found, return as-is but add ellipsis
+        return text + "..."
+    
     def build_system_prompt(self, session: Dict[str, Any]) -> str:
         """Build the system prompt with campaign context."""
         character = session.get('character', {})
