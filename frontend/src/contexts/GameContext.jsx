@@ -298,6 +298,7 @@ export const GameProvider = ({ children }) => {
     tensionScore,
     quests,
     anchors,
+    journal,
     
     // Actions
     startCampaign,
@@ -305,7 +306,10 @@ export const GameProvider = ({ children }) => {
     completeObjective,
     equipItem,
     unequipItem,
-    endSession
+    endSession,
+    addJournalEntry,
+    updateJournalEntry,
+    deleteJournalEntry
   };
 
   return (
