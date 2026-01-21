@@ -97,7 +97,7 @@ const MainGame = () => {
     navigate('/');
   };
 
-  const activeQuestCount = quests.active.length;
+  const journalEntryCount = journal.length;
 
   return (
     <TooltipProvider>
@@ -111,20 +111,20 @@ const MainGame = () => {
           <div className="absolute inset-0 bg-gradient-to-t from-[#1A1A2E] via-[#1A1A2E]/70 to-transparent" />
         </div>
 
-        {/* Quest Log Button - Top Left */}
+        {/* Journal Button - Top Left */}
         <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-30">
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => setShowQuestLog(true)}
+                onClick={() => setShowJournal(true)}
                 className="relative w-11 h-11 sm:w-14 sm:h-14 bg-[#252542]/80 backdrop-blur-sm border border-white/10 hover:bg-[#252542] hover:border-[#6B46C1]/50"
               >
                 <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 text-[#6B46C1]" />
-                {activeQuestCount > 0 && (
+                {journalEntryCount > 0 && (
                   <span className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-amber-500 text-white text-[10px] sm:text-xs font-bold rounded-full flex items-center justify-center">
-                    {activeQuestCount}
+                    {journalEntryCount}
                   </span>
                 )}
               </Button>
