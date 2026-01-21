@@ -6,7 +6,7 @@ import { Textarea } from './ui/textarea';
 import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar';
 import { Badge } from './ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
-import QuestLog from './QuestLog';
+import Journal from './Journal';
 import EquipmentPanel from './EquipmentPanel';
 import { 
   Sword, 
@@ -33,13 +33,13 @@ const MainGame = () => {
     selectedCharacter, 
     narrativeHistory, 
     isAIThinking, 
-    quests,
+    journal,
     submitAction,
     endSession
   } = useGame();
   
   const [customAction, setCustomAction] = useState('');
-  const [showQuestLog, setShowQuestLog] = useState(false);
+  const [showJournal, setShowJournal] = useState(false);
   const [showEquipment, setShowEquipment] = useState(false);
   const [backgroundLoaded, setBackgroundLoaded] = useState(false);
   const scrollRef = useRef(null);
