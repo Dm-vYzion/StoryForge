@@ -77,6 +77,7 @@ export const GameProvider = ({ children }) => {
       setAnchors(session.anchors || {
         npcs: [], locations: [], plotThreads: [], items: [], factions: [], worldStates: []
       });
+      setJournal(session.journal || []);
       
       return session;
     } catch (error) {
