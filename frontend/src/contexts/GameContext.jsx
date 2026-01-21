@@ -230,6 +230,39 @@ export const GameProvider = ({ children }) => {
     }
   }, [activeSession]);
 
+  // Journal functions
+  const addJournalEntry = useCallback((entry) => {
+    const newEntry = {
+      id: `journal_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      ...entry,
+      createdAt: new Date().toISOString()
+    };
+    setJournal(prev => [newEntry, ...prev]);
+    
+    // Persist to backend if session exists
+    if (activeSession) {
+      api.addJournalEntry(activeSession.id, newEntry).catch(console.error);
+    }
+  }, [activeSession]);
+
+  const updateJournalEntry = useCallback((id, updates) => {
+    setJournal(prev => prev.map(entry => 
+      entry.id === id ? { ...entry, ...updates, updatedAt: new Date().toISOString() } : entry
+    ));
+    
+    if (activeSession) {
+      api.updateJournalEntry(activeSession.id, id, updates).catch(console.error);
+    }
+  }, [activeSession]);
+
+  const deleteJournalEntry = useCallback((id) => {
+    setJournal(prev => prev.filter(entry => entry.id !== id));
+    
+    if (activeSession) {
+      api.deleteJournalEntry(activeSession.id, id).catch(console.error);
+    }
+  }, [activeSession]);
+
   // End campaign session
   const endSession = useCallback(async () => {
     if (activeSession) {
