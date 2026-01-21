@@ -130,7 +130,7 @@ const MainGame = () => {
               </Button>
             </TooltipTrigger>
             <TooltipContent side="right" className="hidden sm:block">
-              <p>Quest Log & Story</p>
+              <p>Adventure Journal</p>
             </TooltipContent>
           </Tooltip>
         </div>
