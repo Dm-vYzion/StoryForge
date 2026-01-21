@@ -279,6 +279,7 @@ export const GameProvider = ({ children }) => {
     setNarrativeHistory([]);
     setQuests({ active: [], completed: [], failed: [] });
     setAnchors({ npcs: [], locations: [], plotThreads: [], items: [], factions: [], worldStates: [] });
+    setJournal([]);
     setTurnCount(0);
     setTensionScore(0);
   }, [activeSession]);
