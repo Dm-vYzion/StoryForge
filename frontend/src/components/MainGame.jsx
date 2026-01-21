@@ -259,10 +259,10 @@ const MainGame = () => {
           </div>
         </div>
 
-        {/* Quest Log Modal */}
-        <QuestLog 
-          open={showQuestLog} 
-          onClose={() => setShowQuestLog(false)} 
+        {/* Journal Modal */}
+        <Journal 
+          open={showJournal} 
+          onClose={() => setShowJournal(false)} 
         />
 
         {/* Equipment Panel */}
