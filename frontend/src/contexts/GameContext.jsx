@@ -38,6 +38,9 @@ export const GameProvider = ({ children }) => {
     factions: [],
     worldStates: []
   });
+  
+  // Player Journal state
+  const [journal, setJournal] = useState([]);
 
   // Load campaigns on mount
   useEffect(() => {
