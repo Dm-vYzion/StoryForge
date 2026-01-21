@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# IDE
+.idea/
+.vscode/
+
+# Testing
+tests/
+test_result.md
+
+# Development files
+*.log
+.env.local
+.env.development
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+*.md
+!README.md
+
+# Supervisor (local dev only)
+/var/log/supervisor/
