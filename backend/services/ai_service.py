@@ -251,18 +251,20 @@ Write an evocative opening scene (3-4 paragraphs) that:
 3. Hints at the adventure to come
 4. Ends with a clear situation inviting player action
 
-Write in second person. Be atmospheric and immersive."""
+Write in second person. Be atmospheric and immersive. IMPORTANT: Always end with a complete sentence."""
 
             response = client.models.generate_content(
                 model=self.model_id,
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     temperature=0.9,
-                    max_output_tokens=1024
+                    max_output_tokens=700
                 )
             )
             
-            return response.text
+            # Ensure narrative ends at a complete sentence
+            narrative = self._ensure_complete_ending(response.text)
+            return narrative
             
         except Exception as e:
             logger.error(f"Error generating opening: {e}")
