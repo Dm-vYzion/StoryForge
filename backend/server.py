@@ -450,6 +450,113 @@ async def unequip_item(session_id: str, request: UnequipRequest):
         logger.error(f"Error unequipping item: {e}")
         raise HTTPException(status_code=500, detail="Failed to unequip item")
 
+# ============== Journal Routes ==============
+
+from pydantic import BaseModel
+
+class JournalEntry(BaseModel):
+    id: str
+    title: str
+    description: Optional[str] = ""
+    category: str  # quests, people, places, notes
+    turn: Optional[int] = 1
+    timestamp: Optional[str] = None
+    completed: Optional[bool] = False
+
+class JournalEntryUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    completed: Optional[bool] = None
+
+@api_router.post("/sessions/{session_id}/journal")
+async def add_journal_entry(session_id: str, entry: JournalEntry):
+    """Add a new journal entry to the session."""
+    try:
+        session = await db.sessions.find_one({"id": session_id}, {'_id': 0})
+        if not session:
+            raise HTTPException(status_code=404, detail="Session not found")
+        
+        entry_dict = entry.dict()
+        entry_dict['createdAt'] = datetime.utcnow().isoformat()
+        
+        await db.sessions.update_one(
+            {"id": session_id},
+            {
+                "$push": {"journal": entry_dict},
+                "$set": {"updatedAt": datetime.utcnow().isoformat()}
+            }
+        )
+        
+        return entry_dict
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error adding journal entry: {e}")
+        raise HTTPException(status_code=500, detail="Failed to add journal entry")
+
+@api_router.put("/sessions/{session_id}/journal/{entry_id}")
+async def update_journal_entry(session_id: str, entry_id: str, updates: JournalEntryUpdate):
+    """Update a journal entry."""
+    try:
+        session = await db.sessions.find_one({"id": session_id}, {'_id': 0})
+        if not session:
+            raise HTTPException(status_code=404, detail="Session not found")
+        
+        journal = session.get('journal', [])
+        entry_found = False
+        
+        for entry in journal:
+            if entry.get('id') == entry_id:
+                if updates.title is not None:
+                    entry['title'] = updates.title
+                if updates.description is not None:
+                    entry['description'] = updates.description
+                if updates.completed is not None:
+                    entry['completed'] = updates.completed
+                entry['updatedAt'] = datetime.utcnow().isoformat()
+                entry_found = True
+                break
+        
+        if not entry_found:
+            raise HTTPException(status_code=404, detail="Journal entry not found")
+        
+        await db.sessions.update_one(
+            {"id": session_id},
+            {"$set": {"journal": journal, "updatedAt": datetime.utcnow().isoformat()}}
+        )
+        
+        return {"message": "Journal entry updated"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating journal entry: {e}")
+        raise HTTPException(status_code=500, detail="Failed to update journal entry")
+
+@api_router.delete("/sessions/{session_id}/journal/{entry_id}")
+async def delete_journal_entry(session_id: str, entry_id: str):
+    """Delete a journal entry."""
+    try:
+        result = await db.sessions.update_one(
+            {"id": session_id},
+            {
+                "$pull": {"journal": {"id": entry_id}},
+                "$set": {"updatedAt": datetime.utcnow().isoformat()}
+            }
+        )
+        
+        if result.modified_count == 0:
+            raise HTTPException(status_code=404, detail="Session or entry not found")
+        
+        return {"message": "Journal entry deleted"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting journal entry: {e}")
+        raise HTTPException(status_code=500, detail="Failed to delete journal entry")
+
 # Include the router in the main app
 app.include_router(api_router)
 
