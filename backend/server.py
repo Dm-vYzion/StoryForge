@@ -138,7 +138,7 @@ async def start_game_session(campaign_id: str, request: StartSessionRequest):
         # Generate opening narrative
         opening_narrative = await ai_service.generate_opening_narrative(campaign, character)
         
-        # Create session
+        # Create session - player starts with empty journal and discovers content through play
         session = {
             "id": f"session_{datetime.utcnow().timestamp()}",
             "campaignId": campaign_id,
@@ -156,8 +156,9 @@ async def start_game_session(campaign_id: str, request: StartSessionRequest):
             "currentLocation": campaign.get('backgroundImage', ''),
             "turnCount": 1,
             "tensionScore": 0,
-            "quests": campaign.get('initialQuests', {"active": [], "completed": [], "failed": []}),
-            "anchors": campaign.get('initialAnchors', {"npcs": [], "locations": [], "plotThreads": [], "items": [], "factions": [], "worldStates": []}),
+            "quests": {"active": [], "completed": [], "failed": []},
+            "anchors": {"npcs": [], "locations": [], "plotThreads": [], "items": [], "factions": [], "worldStates": []},
+            "journal": [],  # Player-driven journal starts empty
             "worldTruths": campaign.get('worldTruths', []),
             "createdAt": datetime.utcnow().isoformat(),
             "updatedAt": datetime.utcnow().isoformat()
