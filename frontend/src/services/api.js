@@ -88,4 +88,20 @@ export const unequipItem = async (sessionId, slot) => {
   return response.data;
 };
 
+// Journal APIs
+export const addJournalEntry = async (sessionId, entry) => {
+  const response = await api.post(`/sessions/${sessionId}/journal`, entry);
+  return response.data;
+};
+
+export const updateJournalEntry = async (sessionId, entryId, updates) => {
+  const response = await api.put(`/sessions/${sessionId}/journal/${entryId}`, updates);
+  return response.data;
+};
+
+export const deleteJournalEntry = async (sessionId, entryId) => {
+  const response = await api.delete(`/sessions/${sessionId}/journal/${entryId}`);
+  return response.data;
+};
+
 export default api;
