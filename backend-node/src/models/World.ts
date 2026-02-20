@@ -73,8 +73,7 @@ const worldSchema = new Schema<IWorld>(
   }
 );
 
-// Indexes
-worldSchema.index({ slug: 1 }, { unique: true });
+// Compound indexes
 worldSchema.index({ defaultTags: 1 });
 worldSchema.index({ licenseMode: 1 });
 
