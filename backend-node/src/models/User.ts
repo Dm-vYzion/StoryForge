@@ -50,9 +50,6 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
   }
 );
 
-// Index for Google OAuth lookups
-userSchema.index({ googleId: 1 }, { sparse: true });
-
 // Method to compare password
 userSchema.methods.comparePassword = async function (
   this: HydratedDocument<IUser>,
