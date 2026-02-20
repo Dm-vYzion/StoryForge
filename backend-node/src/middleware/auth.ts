@@ -123,11 +123,10 @@ export const optionalAuth = async (
  * Generate JWT token for a user
  */
 export const generateToken = (user: IUser): string => {
-  return jwt.sign(
-    { userId: user._id.toString(), email: user.email },
-    config.jwt.secret,
-    { expiresIn: config.jwt.expiresIn }
-  );
+  const payload: JwtPayload = { userId: user._id.toString(), email: user.email };
+  return jwt.sign(payload, config.jwt.secret, { 
+    expiresIn: config.jwt.expiresIn as jwt.SignOptions['expiresIn']
+  });
 };
 
 /**
