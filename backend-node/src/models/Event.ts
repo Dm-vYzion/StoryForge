@@ -65,11 +65,7 @@ const eventSchema = new Schema<IEvent>(
 );
 
 // Compound indexes for efficient querying
-eventSchema.index({ instanceId: 1, branchId: 1, sequence: 1 });
 eventSchema.index({ instanceId: 1, branchId: 1, createdAt: -1 });
 eventSchema.index({ type: 1, createdAt: -1 }); // For analytics
-
-// Ensure unique sequence per instance + branch
-eventSchema.index({ instanceId: 1, branchId: 1, sequence: 1 }, { unique: true });
 
 export const Event = mongoose.model<IEvent>('Event', eventSchema);
