@@ -20,6 +20,7 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
     googleId: {
       type: String,
       sparse: true,
+      index: true,
     },
     displayName: {
       type: String,
