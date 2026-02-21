@@ -1,14 +1,14 @@
 import { Router, Request, Response } from 'express';
-import { NpcTemplate, BestiaryEntry, ItemTemplate, EnvironmentTemplate } from '../models/index.js';
-import { requireAuth } from '../middleware/auth.js';
-import { validate } from '../middleware/validate.js';
-import { asyncHandler, ApiError } from '../middleware/errorHandler.js';
+import { NpcTemplate, BestiaryEntry, ItemTemplate, EnvironmentTemplate } from '../models/index';
+import { requireAuth } from '../middleware/auth';
+import { validate } from '../middleware/validate';
+import { asyncHandler, ApiError } from '../middleware/errorHandler';
 import {
   createNpcTemplateSchema,
   createBestiaryEntrySchema,
   createItemTemplateSchema,
   createEnvironmentTemplateSchema,
-} from '../schemas/index.js';
+} from '../schemas/index';
 
 // ============== NPC Templates Router ==============
 export const npcTemplatesRouter = Router();

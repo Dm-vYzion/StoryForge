@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
-import { config } from '@/config/index.js';
-import { User } from '@/models/User.js';
-import { World } from '@/models/World.js';
-import { CampaignDefinition } from '@/models/CampaignDefinition.js';
-import { PlayerCharacter } from '@/models/PlayerCharacter.js';
+import { config } from '@/config/index';
+import { User } from '@/models/User';
+import { World } from '@/models/World';
+import { CampaignDefinition } from '@/models/CampaignDefinition';
+import { PlayerCharacter } from '@/models/PlayerCharacter';
 
 async function main() {
   // Connect to Mongo

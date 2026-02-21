@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-import { IAssetPack, AssetPackType } from '../types/index.js';
+import { IAssetPack, AssetPackType } from '../types/index';
 
 const assetPackSchema = new Schema<IAssetPack>(
   {

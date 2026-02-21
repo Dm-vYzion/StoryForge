@@ -1,6 +1,6 @@
 import mongoose, { Schema, Model, HydratedDocument } from 'mongoose';
 import argon2 from 'argon2';
-import { IUser, IUserMethods, PlanType } from '../types/index.js';
+import { IUser, IUserMethods, PlanType } from '../types/index';
 
 type UserModel = Model<IUser, {}, IUserMethods>;
 

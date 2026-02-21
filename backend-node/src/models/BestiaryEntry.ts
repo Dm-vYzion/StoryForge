@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-import { IBestiaryEntry, IBestiaryStatBlock, ILevelRange } from '../types/index.js';
+import { IBestiaryEntry, IBestiaryStatBlock, ILevelRange } from '../types/index';
 
 const bestiaryStatBlockSchema = new Schema<IBestiaryStatBlock>(
   {

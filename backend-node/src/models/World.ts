@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-import { IWorld, LicenseModeType } from '../types/index.js';
+import { IWorld, LicenseModeType } from '../types/index';
 
 const worldSchema = new Schema<IWorld>(
   {

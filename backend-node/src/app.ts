@@ -2,9 +2,9 @@ import express, { Application } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
-import { config } from './config/index.js';
-import routes from './routes/index.js';
-import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
+import { config } from './config/index';
+import routes from './routes/index';
+import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 
 /**
  * Create and configure the Express application

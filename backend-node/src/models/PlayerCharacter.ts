@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-import { IPlayerCharacter, IBaseStats, IAbility, IGlobalAchievement } from '../types/index.js';
+import { IPlayerCharacter, IBaseStats, IAbility, IGlobalAchievement } from '../types/index';
 
 const baseStatsSchema = new Schema<IBaseStats>(
   {

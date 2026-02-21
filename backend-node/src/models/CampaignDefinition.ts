@@ -7,7 +7,7 @@ import {
   ICampaignLocation,
   ILevelRange,
   VisibilityType 
-} from '../types/index.js';
+} from '../types/index';
 
 const levelRangeSchema = new Schema<ILevelRange>(
   {

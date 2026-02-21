@@ -1,8 +1,8 @@
 import { Router, Request, Response } from 'express';
-import { CampaignInstance, CampaignDefinition, PlayerCharacter, Event, Snapshot, Purchase } from '../models/index.js';
-import { requireAuth } from '../middleware/auth.js';
-import { validate, validateQuery } from '../middleware/validate.js';
-import { asyncHandler, ApiError } from '../middleware/errorHandler.js';
+import { CampaignInstance, CampaignDefinition, PlayerCharacter, Event, Snapshot, Purchase } from '../models/index';
+import { requireAuth } from '../middleware/auth';
+import { validate, validateQuery } from '../middleware/validate';
+import { asyncHandler, ApiError } from '../middleware/errorHandler';
 import {
   createCampaignInstanceSchema,
   forkCampaignInstanceSchema,
@@ -11,7 +11,7 @@ import {
   createSnapshotSchema,
   transferItemSchema,
   useItemSchema,
-} from '../schemas/index.js';
+} from '../schemas/index';
 import { Types } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 

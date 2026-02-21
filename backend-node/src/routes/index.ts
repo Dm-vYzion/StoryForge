@@ -1,15 +1,15 @@
 import { Router } from 'express';
 
 // Import all routers
-import authRouter from './auth.js';
-import worldsRouter from './worlds.js';
-import assetPacksRouter from './assetPacks.js';
-import { npcTemplatesRouter, bestiaryRouter, itemTemplatesRouter, environmentTemplatesRouter } from './templates.js';
-import campaignDefsRouter from './campaignDefs.js';
-import playerCharactersRouter from './playerCharacters.js';
-import campaignInstancesRouter from './campaignInstances.js';
-import purchasesRouter from './purchases.js';
-import aiRouter from './ai.js';
+import authRouter from './auth';
+import worldsRouter from './worlds';
+import assetPacksRouter from './assetPacks';
+import { npcTemplatesRouter, bestiaryRouter, itemTemplatesRouter, environmentTemplatesRouter } from './templates';
+import campaignDefsRouter from './campaignDefs';
+import playerCharactersRouter from './playerCharacters';
+import campaignInstancesRouter from './campaignInstances';
+import purchasesRouter from './purchases';
+import aiRouter from './ai';
 
 const router = Router();
 

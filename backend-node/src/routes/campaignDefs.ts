@@ -1,9 +1,9 @@
 import { Router, Request, Response } from 'express';
-import { CampaignDefinition, World, Purchase } from '../models/index.js';
-import { requireAuth, optionalAuth } from '../middleware/auth.js';
-import { validate, validateQuery } from '../middleware/validate.js';
-import { asyncHandler, ApiError } from '../middleware/errorHandler.js';
-import { createCampaignDefSchema, updateCampaignDefSchema, campaignDefQuerySchema } from '../schemas/index.js';
+import { CampaignDefinition, World, Purchase } from '../models/index';
+import { requireAuth, optionalAuth } from '../middleware/auth';
+import { validate, validateQuery } from '../middleware/validate';
+import { asyncHandler, ApiError } from '../middleware/errorHandler';
+import { createCampaignDefSchema, updateCampaignDefSchema, campaignDefQuerySchema } from '../schemas/index';
 import { Types } from 'mongoose';
 
 const router = Router();

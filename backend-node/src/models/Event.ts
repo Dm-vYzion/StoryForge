@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-import { IEvent, EventType } from '../types/index.js';
+import { IEvent, EventType } from '../types/index';
 
 const eventTypes: EventType[] = [
   'NpcKilled',

@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-import { IItemTemplate, IItemStats, ItemCategory } from '../types/index.js';
+import { IItemTemplate, IItemStats, ItemCategory } from '../types/index';
 
 const itemStatsSchema = new Schema<IItemStats>(
   {

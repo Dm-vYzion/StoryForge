@@ -1,9 +1,9 @@
 import { Router, Request, Response } from 'express';
-import { World, Purchase } from '../models/index.js';
-import { requireAuth, optionalAuth } from '../middleware/auth.js';
-import { validate, validateQuery } from '../middleware/validate.js';
-import { asyncHandler, ApiError } from '../middleware/errorHandler.js';
-import { createWorldSchema, worldQuerySchema } from '../schemas/index.js';
+import { World, Purchase } from '../models/index';
+import { requireAuth, optionalAuth } from '../middleware/auth';
+import { validate, validateQuery } from '../middleware/validate';
+import { asyncHandler, ApiError } from '../middleware/errorHandler';
+import { createWorldSchema, worldQuerySchema } from '../schemas/index';
 
 const router = Router();
 

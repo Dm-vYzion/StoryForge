@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-import { IPurchase, AssetType } from '../types/index.js';
+import { IPurchase, AssetType } from '../types/index';
 
 const purchaseSchema = new Schema<IPurchase>(
   {

@@ -1,9 +1,9 @@
 import { Router, Request, Response } from 'express';
-import { PlayerCharacter } from '../models/index.js';
-import { requireAuth } from '../middleware/auth.js';
-import { validate } from '../middleware/validate.js';
-import { asyncHandler, ApiError } from '../middleware/errorHandler.js';
-import { createPlayerCharacterSchema, updatePlayerCharacterSchema } from '../schemas/index.js';
+import { PlayerCharacter } from '../models/index';
+import { requireAuth } from '../middleware/auth';
+import { validate } from '../middleware/validate';
+import { asyncHandler, ApiError } from '../middleware/errorHandler';
+import { createPlayerCharacterSchema, updatePlayerCharacterSchema } from '../schemas/index';
 
 const router = Router();
 

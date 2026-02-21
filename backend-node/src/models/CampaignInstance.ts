@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-import { ICampaignInstance } from '../types/index.js';
+import { ICampaignInstance } from '../types/index';
 
 const campaignInstanceSchema = new Schema<ICampaignInstance>(
   {

@@ -1,9 +1,9 @@
 import { Router, Request, Response } from 'express';
-import { AssetPack, CampaignDefinition } from '../models/index.js';
-import { requireAuth } from '../middleware/auth.js';
-import { validate } from '../middleware/validate.js';
-import { asyncHandler, ApiError } from '../middleware/errorHandler.js';
-import { createAssetPackSchema } from '../schemas/index.js';
+import { AssetPack, CampaignDefinition } from '../models/index';
+import { requireAuth } from '../middleware/auth';
+import { validate } from '../middleware/validate';
+import { asyncHandler, ApiError } from '../middleware/errorHandler';
+import { createAssetPackSchema } from '../schemas/index';
 import { Types } from 'mongoose';
 
 const router = Router();

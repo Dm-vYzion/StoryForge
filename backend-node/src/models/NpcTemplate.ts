@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-import { INpcTemplate, IPersonality } from '../types/index.js';
+import { INpcTemplate, IPersonality } from '../types/index';
 
 const personalitySchema = new Schema<IPersonality>(
   {

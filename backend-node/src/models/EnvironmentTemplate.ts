@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-import { IEnvironmentTemplate, IEnvironmentDefaultState, EnvironmentType } from '../types/index.js';
+import { IEnvironmentTemplate, IEnvironmentDefaultState, EnvironmentType } from '../types/index';
 
 const environmentDefaultStateSchema = new Schema<IEnvironmentDefaultState>(
   {

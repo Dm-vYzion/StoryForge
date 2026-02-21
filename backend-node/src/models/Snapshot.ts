@@ -9,7 +9,7 @@ import {
   INpcSnapshot,
   IMonsterSnapshot,
   ILocationSnapshot
-} from '../types/index.js';
+} from '../types/index';
 
 const inventoryItemSchema = new Schema<IInventoryItem>(
   {
