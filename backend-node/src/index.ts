@@ -9,6 +9,7 @@ const PORT = config.port;
  */
 async function connectDB(): Promise<void> {
   try {
+    console.log('Mongo URI in use:', config.mongo.uri);
     await mongoose.connect(config.mongo.uri);
     console.log('✅ Connected to MongoDB');
   } catch (error) {
