@@ -21,13 +21,19 @@ export const googleAuthSchema = z.object({
 
 export const createWorldSchema = z.object({
   name: z.string().min(2).max(100),
-  slug: z.string().min(2).max(50).regex(/^[a-z0-9-]+$/, 'Slug must be lowercase alphanumeric with hyphens'),
+  slug: z
+    .string()
+    .min(2)
+    .max(50)
+    .regex(/^[a-z0-9-]+$/, 'Slug must be lowercase alphanumeric with hyphens')
+    .optional(), // ← make slug optional
   description: z.string().optional(),
   baseTruths: z.record(z.unknown()).optional(),
   defaultTags: z.array(z.string()).optional(),
   licenseMode: z.enum(['open', 'paid', 'invite-only']).optional(),
   licensePrice: z.number().min(0).optional(),
 });
+
 
 export const worldQuerySchema = z.object({
   tags: z.string().optional(),
