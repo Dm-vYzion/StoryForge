@@ -4,6 +4,7 @@ import { requireAuth, optionalAuth } from '../middleware/auth';
 import { validate, validateQuery } from '../middleware/validate';
 import { asyncHandler, ApiError } from '../middleware/errorHandler';
 import { createWorldSchema, worldQuerySchema } from '../schemas/index';
+import { generateUniqueWorldSlug, toBaseSlug } from '../utils/slug';
 
 const router = Router();
 
@@ -16,25 +17,56 @@ router.post(
   requireAuth,
   validate(createWorldSchema),
   asyncHandler(async (req: Request, res: Response) => {
-    const { slug } = req.body;
+    const { name, slug: rawSlug, description, defaultTags, baseTruths, licenseMode, licensePrice } = req.body as {
+      name: string;
+      slug?: string;
+      description?: string;
+      defaultTags?: string[];
+      baseTruths?: Record<string, unknown>;
+      licenseMode?: string;
+      licensePrice?: number;
+    };
 
-    // Check if slug is unique
-    const existingWorld = await World.findOne({ slug });
-    if (existingWorld) {
-      throw new ApiError(409, 'A world with this slug already exists');
+    let finalSlug: string;
+
+    if (rawSlug && rawSlug.trim().length > 0) {
+      // Client supplied a slug: normalize and enforce uniqueness
+      const normalized = toBaseSlug(rawSlug);
+      if (!normalized) {
+        throw new ApiError(400, 'Invalid slug');
+      }
+
+      const existing = await World.findOne({ slug: normalized });
+      if (existing) {
+        throw new ApiError(409, 'A world with this slug already exists');
+      }
+
+      finalSlug = normalized;
+    } else {
+      // No slug provided: auto-generate from name
+      finalSlug = await generateUniqueWorldSlug(name);
     }
 
     const world = await World.create({
-      ...req.body,
+      name,
+      slug: finalSlug,          // ← always set
+      description,
+      defaultTags,
+      baseTruths,
+      licenseMode,
+      licensePrice,
       authorUserId: req.user!._id,
     });
 
     res.status(201).json({
       success: true,
-      data: world,
+      data: {
+        world,
+      },
     });
   })
 );
+
 
 /**
  * GET /worlds/public
@@ -81,6 +113,27 @@ router.get(
           total,
           pages: Math.ceil(total / limit),
         },
+      },
+    });
+  })
+);
+
+/**
+ * GET /worlds/mine
+ * List worlds owned by the logged-in user
+ */
+router.get(
+  '/mine',
+  requireAuth,
+  asyncHandler(async (req: Request, res: Response) => {
+    const worlds = await World.find({ authorUserId: req.user!._id })
+      .select('name slug description defaultTags licenseMode licensePrice authorUserId createdAt')
+      .sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      data: {
+        worlds,
       },
     });
   })
