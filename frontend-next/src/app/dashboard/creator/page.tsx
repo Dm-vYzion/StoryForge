@@ -38,16 +38,6 @@ type Campaign = {
   visibility?: string;
 };
 
-type PlayerCharacter = {
-  id?: string;
-  _id?: string;
-  name: string;
-  race: string;
-  class: string;
-  level: number;
-  maxHp: number;
-};
-
 type WorldsResponse = {
   success: boolean;
   data?: {
@@ -75,12 +65,6 @@ type CampaignsResponse = {
   error?: string;
 };
 
-type PCsResponse = {
-  success: boolean;
-  data?: PlayerCharacter[];
-  error?: string;
-};
-
 type MeResponse = {
   success: boolean;
   data?: { user: User };
@@ -93,7 +77,6 @@ export default function CreatorHubPage() {
   const [user, setUser] = useState<User | null>(null);
   const [worlds, setWorlds] = useState<World[]>([]);
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
-  const [pcs, setPcs] = useState<PlayerCharacter[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [myWorlds, setMyWorlds] = useState<World[]>([]);
@@ -104,7 +87,17 @@ export default function CreatorHubPage() {
   const [newWorldDescription, setNewWorldDescription] = useState("");
   const [isCreatingWorld, setIsCreatingWorld] = useState(false);
   const [createWorldError, setCreateWorldError] = useState<string | null>(null);
+  const [showWorldCreate, setShowWorldCreate] = useState(false);
 
+  type CreatorTab =
+  | "worlds"
+  | "campaigns"
+  | "npcs"
+  | "bestiary"
+  | "locations"
+  | "items";
+
+  const [activeTab, setActiveTab] = useState<CreatorTab>("worlds");
 
   const handleLogout = async () => {
     try {
@@ -193,23 +186,20 @@ export default function CreatorHubPage() {
 
         setUser(meJson.data.user);
 
-        const [worldsRes, myWorldsRes, campaignsRes, pcsRes] = await Promise.all([
+        const [worldsRes, myWorldsRes, campaignsRes] = await Promise.all([
         fetch(apiUrl("/api/worlds/public"), { credentials: "include" }),
         fetch(apiUrl("/api/worlds/mine"), { credentials: "include" }),
         fetch(apiUrl("/api/campaign-defs/public"), { credentials: "include" }),
-        fetch(apiUrl("/api/player-characters/mine"), { credentials: "include" }),
         ]);
 
-        const [worldsJson, myWorldsJson, campaignsJson, pcsJson]: [
+        const [worldsJson, myWorldsJson, campaignsJson]: [
         WorldsResponse,
         MyWorldsResponse,
         CampaignsResponse,
-        PCsResponse
         ] = await Promise.all([
         worldsRes.json(),
         myWorldsRes.json(),
         campaignsRes.json(),
-        pcsRes.json(),
         ]);
 
 
@@ -227,9 +217,6 @@ export default function CreatorHubPage() {
           setCampaigns(campaignsJson.data.campaigns);
         }
 
-        if (pcsJson.success && pcsJson.data) {
-          setPcs(pcsJson.data);
-        }
       } catch (err) {
         console.error("Dashboard load error", err);
         setError("Failed to load dashboard data. Please try again.");
@@ -254,16 +241,16 @@ export default function CreatorHubPage() {
     <main className="w-full max-w-4xl bg-slate-900 border border-slate-800 rounded-lg p-6 shadow-lg space-y-6">
       <header className="border-b border-slate-800 pb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-semibold">StoryForge Dashboard</h1>
+          <h1 className="text-2xl font-semibold">Creator Hub</h1>
           {user && (
             <p className="text-sm text-slate-300">
-              Signed in as <span className="font-mono">{user.email}</span> (
-              {user.plan})
+              Signed in as <span className="font-mono">{user.email}</span> ({user.plan})
             </p>
           )}
           {error && <p className="text-sm text-red-300">{error}</p>}
         </div>
 
+        <div className="flex gap-2">
         <button
           type="button"
           onClick={handleLogout}
@@ -271,119 +258,185 @@ export default function CreatorHubPage() {
         >
           Log out
         </button>
+
+        <button
+          type="button"
+          onClick={() => router.push("/dashboard/player")}
+          className="mt-2 inline-flex items-center justify-center rounded-md border border-slate-700 bg-slate-950 px-3 py-1.5 text-xs font-medium text-slate-100 hover:bg-slate-800"
+        >
+          Go to Player Hub
+        </button>
+        </div>
       </header>
 
+      {/* Tab bar BELOW header */}
+      <div className="border-b border-slate-800 mb-4">
+        <nav className="flex flex-wrap gap-2 text-xs sm:text-sm">
+          {[
+            { id: "worlds", label: "My Worlds" },
+            { id: "campaigns", label: "My Campaigns" },
+            { id: "npcs", label: "My NPCs" },
+            { id: "bestiary", label: "My Bestiary" },
+            { id: "locations", label: "My Locations" },
+            { id: "items", label: "My Items" },
+            ].map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setActiveTab(tab.id as CreatorTab)}
+              className={`px-3 py-1.5 rounded-t-md border-b-2 ${
+                activeTab === tab.id
+                  ? "border-indigo-500 text-slate-100"
+                  : "border-transparent text-slate-400 hover:text-slate-200"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </nav>
+      </div>
+
+      {activeTab === "worlds" && (
       <section>
-        <h2 className="text-lg font-semibold mb-2">Worlds</h2>
-        {worlds.length === 0 ? (
-          <p className="text-sm text-slate-400">No worlds found.</p>
+        <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="text-lg font-semibold">My Worlds</h2>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setShowWorldCreate((prev) => !prev)}
+              className="inline-flex items-center justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-500"
+            >
+              {showWorldCreate ? "Close" : "Create World"}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                console.log("TODO: navigate to Marketplace Worlds");
+              }}
+              className="inline-flex items-center justify-center rounded-md border border-slate-700 bg-slate-950 px-3 py-1.5 text-xs font-medium text-slate-100 hover:bg-slate-800"
+            >
+              Browse Marketplace Worlds
+            </button>
+          </div>
+        </div>
+
+        {/* Create World form */}
+        {showWorldCreate && (
+        <form
+          onSubmit={handleCreateWorld}
+          className="mb-4 space-y-2 rounded border border-slate-800 bg-slate-950 px-3 py-3"
+        >
+          <div className="text-sm font-medium mb-1">Create a new world</div>
+          {createWorldError && (
+            <p className="text-xs text-red-300 mb-1">{createWorldError}</p>
+          )}
+          <div className="grid gap-2 sm:grid-cols-2">
+            <div className="space-y-1">
+              <label className="block text-xs font-medium" htmlFor="world-name">
+                Name
+              </label>
+              <input
+                id="world-name"
+                className="w-full rounded-md border border-slate-700 bg-slate-950 px-2 py-1.5 text-xs outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                value={newWorldName}
+                onChange={(e) => setNewWorldName(e.target.value)}
+                placeholder="My New World"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="block text-xs font-medium" htmlFor="world-slug">
+                Slug (optional)
+              </label>
+              <input
+                id="world-slug"
+                className="w-full rounded-md border border-slate-700 bg-slate-950 px-2 py-1.5 text-xs outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                value={newWorldSlug}
+                onChange={(e) => setNewWorldSlug(e.target.value)}
+                placeholder="my-new-world"
+              />
+              <p className="text-[11px] text-slate-400 mt-1">
+                Lowercase letters, numbers, and hyphens only. Leave blank to
+                auto-generate from the name.
+              </p>
+            </div>
+          </div>
+          <div className="space-y-1">
+            <label
+              className="block text-xs font-medium"
+              htmlFor="world-description"
+            >
+              Description (optional)
+            </label>
+            <textarea
+              id="world-description"
+              className="w-full rounded-md border border-slate-700 bg-slate-950 px-2 py-1.5 text-xs outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+              rows={2}
+              value={newWorldDescription}
+              onChange={(e) => setNewWorldDescription(e.target.value)}
+              placeholder="A strange realm of fading magic..."
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={isCreatingWorld}
+            className="mt-1 inline-flex items-center justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-500 disabled:opacity-60"
+          >
+            {isCreatingWorld ? "Creating..." : "Create World"}
+          </button>
+        </form>
+        )}
+
+        {/* My Worlds list */}
+        {myWorlds.length === 0 ? (
+          <p className="text-sm text-slate-400">
+            You have no personal worlds yet.
+          </p>
         ) : (
           <ul className="space-y-2">
-            {worlds.map((w) => (
+            {myWorlds.map((w) => (
               <li
                 key={w.id || w._id}
                 className="rounded border border-slate-800 bg-slate-950 px-3 py-2"
               >
                 <div className="font-medium">{w.name}</div>
                 {w.description && (
-                  <div className="text-xs text-slate-400">
-                    {w.description}
-                  </div>
+                  <div className="text-xs text-slate-400">{w.description}</div>
                 )}
               </li>
             ))}
           </ul>
         )}
       </section>
+      )}
 
+      {activeTab === "campaigns" && (
       <section>
-				<h2 className="text-lg font-semibold mb-2">My Worlds</h2>
+        <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="text-lg font-semibold">My Campaigns</h2>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                console.log("TODO: open Create Campaign flow");
+              }}
+              className="inline-flex items-center justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-500"
+            >
+              Create Campaign
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                console.log("TODO: navigate to Marketplace Campaigns");
+              }}
+              className="inline-flex items-center justify-center rounded-md border border-slate-700 bg-slate-950 px-3 py-1.5 text-xs font-medium text-slate-100 hover:bg-slate-800"
+            >
+              Browse Marketplace Campaigns
+            </button>
+          </div>
+        </div>
 
-				<form
-					onSubmit={handleCreateWorld}
-					className="mb-4 space-y-2 rounded border border-slate-800 bg-slate-950 px-3 py-3"
-				>
-					<div className="text-sm font-medium mb-1">Create a new world</div>
-					{createWorldError && (
-						<p className="text-xs text-red-300 mb-1">{createWorldError}</p>
-					)}
-					<div className="grid gap-2 sm:grid-cols-2">
-						<div className="space-y-1">
-							<label className="block text-xs font-medium" htmlFor="world-name">
-								Name
-							</label>
-							<input
-								id="world-name"
-								className="w-full rounded-md border border-slate-700 bg-slate-950 px-2 py-1.5 text-xs outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-								value={newWorldName}
-								onChange={(e) => setNewWorldName(e.target.value)}
-								placeholder="My New World"
-							/>
-						</div>
-						<div className="space-y-1">
-							<label className="block text-xs font-medium" htmlFor="world-slug">
-								Slug (optional)
-							</label>
-							<input
-								id="world-slug"
-								className="w-full rounded-md border border-slate-700 bg-slate-950 px-2 py-1.5 text-xs outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-								value={newWorldSlug}
-								onChange={(e) => setNewWorldSlug(e.target.value)}
-								placeholder="my-new-world"
-							/>
-              <p className="text-[11px] text-slate-400 mt-1">
-                Lowercase letters, numbers, and hyphens only. Leave blank to auto-generate from the name.
-              </p>
-						</div>
-					</div>
-					<div className="space-y-1">
-						<label
-							className="block text-xs font-medium"
-							htmlFor="world-description"
-						>
-							Description (optional)
-						</label>
-						<textarea
-							id="world-description"
-							className="w-full rounded-md border border-slate-700 bg-slate-950 px-2 py-1.5 text-xs outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-							rows={2}
-							value={newWorldDescription}
-							onChange={(e) => setNewWorldDescription(e.target.value)}
-							placeholder="A strange realm of fading magic..."
-						/>
-					</div>
-					<button
-						type="submit"
-						disabled={isCreatingWorld}
-						className="mt-1 inline-flex items-center justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-500 disabled:opacity-60"
-					>
-						{isCreatingWorld ? "Creating..." : "Create World"}
-					</button>
-				</form>
-
-				{myWorlds.length === 0 ? (
-					<p className="text-sm text-slate-400">You have no personal worlds yet.</p>
-				) : (
-					<ul className="space-y-2">
-						{myWorlds.map((w) => (
-							<li
-								key={w.id || w._id}
-								className="rounded border border-slate-800 bg-slate-950 px-3 py-2"
-							>
-								<div className="font-medium">{w.name}</div>
-								{w.description && (
-									<div className="text-xs text-slate-400">{w.description}</div>
-								)}
-							</li>
-						))}
-					</ul>
-				)}
-			</section>
-
-      <section>
-        <h2 className="text-lg font-semibold mb-2">Campaigns</h2>
         {campaigns.length === 0 ? (
-          <p className="text-sm text-slate-400">No campaigns found.</p>
+          <p className="text-sm text-slate-400">Coming Soon.</p>
         ) : (
           <ul className="space-y-2">
             {campaigns.map((c) => (
@@ -407,29 +460,131 @@ export default function CreatorHubPage() {
           </ul>
         )}
       </section>
+      )}
 
-      <section>
-        <h2 className="text-lg font-semibold mb-2">Player Characters</h2>
-        {pcs.length === 0 ? (
-          <p className="text-sm text-slate-400">No player characters found.</p>
-        ) : (
-          <ul className="space-y-2">
-            {pcs.map((pc) => (
-              <li
-                key={pc.id || pc._id}
-                className="rounded border border-slate-800 bg-slate-950 px-3 py-2"
+      {activeTab === "npcs" && (
+        <section>
+          <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <h2 className="text-lg font-semibold">My NPCs</h2>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  console.log("TODO: open Create NPC flow");
+                }}
+                className="inline-flex items-center justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-500"
               >
-                <div className="font-medium">
-                  {pc.name} – {pc.race} {pc.class}
-                </div>
-                <div className="text-xs text-slate-400">
-                  Level {pc.level}, {pc.maxHp} HP
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
+                Create NPC
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  console.log("TODO: navigate to Marketplace NPCs");
+                }}
+                className="inline-flex items-center justify-center rounded-md border border-slate-700 bg-slate-950 px-3 py-1.5 text-xs font-medium text-slate-100 hover:bg-slate-800"
+              >
+                Browse Marketplace NPCs
+              </button>
+            </div>
+          </div>
+          <p className="text-sm text-slate-400">
+            Coming soon: manage NPC templates you create or license.
+          </p>
+        </section>
+      )}
+
+    {activeTab === "bestiary" && (
+      <section>
+        <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="text-lg font-semibold">My Bestiary</h2>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                console.log("TODO: open Create Creature flow");
+              }}
+              className="inline-flex items-center justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-500"
+            >
+              Create Creature
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                console.log("TODO: navigate to Marketplace Bestiary");
+              }}
+              className="inline-flex items-center justify-center rounded-md border border-slate-700 bg-slate-950 px-3 py-1.5 text-xs font-medium text-slate-100 hover:bg-slate-800"
+            >
+              Browse Marketplace Bestiary
+            </button>
+          </div>
+        </div>
+        <p className="text-sm text-slate-400">
+          Coming soon: creatures and monsters you can reuse across worlds.
+        </p>
       </section>
+    )}
+
+    {activeTab === "locations" && (
+      <section>
+        <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="text-lg font-semibold">My Locations</h2>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                console.log("TODO: open Create Location flow");
+              }}
+              className="inline-flex items-center justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-500"
+            >
+              Create Location
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                console.log("TODO: navigate to Marketplace Locations");
+              }}
+              className="inline-flex items-center justify-center rounded-md border border-slate-700 bg-slate-950 px-3 py-1.5 text-xs font-medium text-slate-100 hover:bg-slate-800"
+            >
+              Browse Marketplace Locations
+            </button>
+          </div>
+        </div>
+        <p className="text-sm text-slate-400">
+          Coming soon: taverns, cities, dungeons, and other locations you own.
+        </p>
+      </section>
+    )}
+
+    {activeTab === "items" && (
+      <section>
+        <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="text-lg font-semibold">My Items</h2>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                console.log("TODO: open Create Item flow");
+              }}
+              className="inline-flex items-center justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-500"
+            >
+              Create Item
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                console.log("TODO: navigate to Marketplace Items");
+              }}
+              className="inline-flex items-center justify-center rounded-md border border-slate-700 bg-slate-950 px-3 py-1.5 text-xs font-medium text-slate-100 hover:bg-slate-800"
+            >
+              Browse Marketplace Items
+            </button>
+          </div>
+        </div>
+        <p className="text-sm text-slate-400">
+          Coming soon: magic items, gear, and artifacts for your campaigns.
+        </p>
+      </section>
+    )}
     </main>
   );
 }
